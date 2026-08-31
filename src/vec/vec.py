@@ -46,9 +46,7 @@ class Vec:
         Returns:
             Self: A vector instance with thw negated value
         """
-        neg = []
-        for x in self.elements:
-            neg.append(-x)
+        neg = [-x for x in self.elements]
         return Vec(neg)
 
     def __add__(self, t: Self) -> Self:
@@ -67,10 +65,7 @@ class Vec:
         if len(self.elements) != len(t.elements):
             raise TypeError(f"The vectors must be for the same dimentions")
 
-        result = []
-        for x, y in zip(self.elements, t.elements):
-            rounded = round(x + y, 5)
-            result.append(rounded)
+        result = [round(x + y, 5) for x, y in zip(self.elements, t.elements)]
         return Vec(result)
     
     def __sub__(self, t: Self) -> Self:
@@ -89,10 +84,7 @@ class Vec:
         if len(self.elements) != len(t.elements):
             raise TypeError(f"The vectors must be for the same dimentions")
 
-        result = []
-        for x, y in zip(self.elements, t.elements):
-            rounded = round(x - y, 5)
-            result.append(rounded)
+        result = [round(x - y, 5) for x, y in zip(self.elements, t.elements)]
         return Vec(result)
 
     def __mul__(self, scalar: int | float) -> Self:
@@ -112,10 +104,7 @@ class Vec:
         if not isinstance(scalar, int | float):
             raise TypeError(f"Vector multiplication with invalid type: {type(scalar)}")
 
-        result = []
-        for x in self.elements:
-            rounded = round(x * scalar, 5)
-            result.append(rounded) 
+        result = [round(x * scalar, 5) for x in self.elements]
         return Vec(result)
 
     def __imul__(self, scalar: int | float) -> Self:
@@ -131,14 +120,11 @@ class Vec:
         if not isinstance(scalar, int | float):
             raise TypeError(f"Vector multiplication with invalid types: {type(scalar)}")
 
-        result = []
-        for x in self.elements:
-            rounded = round(x * scalar, 5)
-            result.append(rounded)
+        result = [round(x * scalar, 5) for x in self.elements]
         self.elements = tuple(result)
         return self
 
-    def __radd__(self, scalar: int | float) -> Self:
+    def __radd__(self, other: Self) -> Self:
         """
         Adds the each element of the vector by a given scalar numeric value.
 
@@ -148,16 +134,16 @@ class Vec:
         Returns:
             Self: A new Vector that has been added by the scalar value.
         """
-        if not isinstance(scalar, int | float):
-            raise TypeError(f"Vector multiplication with invalid types: {type(scalar)}")
+        if not isinstance(other, Vec):
+            raise TypeError(f"Expected Vec: {type(t)}")
 
-        result = []
-        for x in self.elements:
-            rounded = round(x + scalar, 5)
-            result.append(rounded)
+        if len(self.elements) != len(other.elements):
+            raise TypeError(f"The vectors must be for the same dimentions")
+
+        result = [round(x + y, 5) for x, y in zip(self.elements, other.elements)]
         return Vec(result)
 
-    def __iadd__(self, scaler: int | float) -> Self:
+    def __iadd__(self, other: Self) -> Self:
         """
         Adds and mutates the each element of the vector by a given scalar numeric value.
 
@@ -167,13 +153,13 @@ class Vec:
         Returns:
             Self: A mutated Vector that has been added by the scalar value.
         """
-        if not isinstance(scaler, int | float):
-            raise TypeError(f"Vector multiplication with invalid types: {type(scalar)}")
+        if not isinstance(other, Vec):
+            raise TypeError(f"Expected Vec: {type(t)}")
 
-        result = []
-        for x in self.elements:
-            rounded = round(x + scaler, 5)
-            result.append(rounded)
+        if len(self.elements) != len(other.elements):
+            raise TypeError(f"The vectors must be for the same dimentions")
+
+        result = [round(x + y, 5) for x, y in zip(self.elements, other.elements)]
         self.elements = tuple(result)
         return self
 
@@ -221,9 +207,8 @@ class Vec:
         """
         if n <= 0:
             raise ValueError("The value of the dimention must be positive")
-        result = []
-        for i in range(n):
-            result.append(round(random.uniform(0, 1), 5))
+        
+        result = [round(random.uniform(0, 1), 5) for _ in range(n)]
         return Vec(result)
 
     @staticmethod
@@ -238,10 +223,8 @@ class Vec:
         Returns:
             L2Norm (float): sqrt(e[0]^2 + e[1]^2 + e[2]^2 + ... + e[n-1]^2)
         """
-        sumSquare = 0
-        for x in self.elements:
-            sumSquare += x**2
-        return math.sqrt(sumSquare)
+        sum_square = sum(x **2 for x in self.elements)
+        return math.sqrt(sum_square)
 
 if __name__ == "__main__":
     v1 = Vec([1, 2, 3])
@@ -264,15 +247,12 @@ if __name__ == "__main__":
 
     v6 = 5 * v5
     print(v6)
+    print("------")
+    v6 = v5 * 5
+    print(v6)
 
     v6 *= 67
     print(v6)
-
-    v7 = 5 + v6
-    print(v7)
-
-    v7 += 67
-    print(v7)
 
     print(Vec.zeros(6))
     print(Vec.ones(7))
@@ -281,5 +261,5 @@ if __name__ == "__main__":
     v8 = Vec([-3, 2, -1, 1, -1])
     print(Vec.norm(v8))
 
-    v9 = Vec(67)
-    print(v9)
+    # v9 = Vec(67)
+    # print(v9)

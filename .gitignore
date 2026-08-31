@@ -21,3 +21,5 @@ src/linalg/include
 src/linalg/share
 
 /src/venv
+__pycache__/
+*.pyc

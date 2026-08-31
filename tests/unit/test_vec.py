@@ -1,4 +1,4 @@
-from vec import Vec
+from src.vec.vec import Vec
 
 # class TestVec:
 
