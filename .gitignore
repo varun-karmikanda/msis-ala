@@ -8,7 +8,7 @@ lectures/_minted/
 *.aux
 *.nav
 *.out
-*.log
+# *.log
 *.snm
 *.toc
 *.vrb
