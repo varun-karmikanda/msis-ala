@@ -88,6 +88,15 @@ class Vec:
         return Vec(result)
 
     def __mul__(self, scalar: int | float) -> Self:
+        """
+        Multiplies the each element of the scalar by the given scalar numeric value.
+
+        Args:
+            scalar (int | float): The scalar value.
+
+        Returns:
+            Self: A new Vector that has been multiplied by the scalar value.
+        """
         return self.__rmul__(scalar) 
 
 
@@ -126,35 +135,28 @@ class Vec:
 
     def __radd__(self, other: Self) -> Self:
         """
-        Adds the each element of the vector by a given scalar numeric value.
-
+        Addition of 2 vectors of the same dimentions.
+        
         Args:
-            scalar (int | float): The scalar value.
+            t (Self): A vector to add to the instance.
 
         Returns:
-            Self: A new Vector that has been added by the scalar value.
+            Self: A new Vector that has element wise sums.
         """
-        if not isinstance(other, Vec):
-            raise TypeError(f"Expected Vec: {type(t)}")
-
-        if len(self.elements) != len(other.elements):
-            raise TypeError(f"The vectors must be for the same dimentions")
-
-        result = [round(x + y, 5) for x, y in zip(self.elements, other.elements)]
-        return Vec(result)
+        return self.__add__(other)
 
     def __iadd__(self, other: Self) -> Self:
         """
-        Adds and mutates the each element of the vector by a given scalar numeric value.
+        Addition of 2 vectors of the same dimentions and stores in the first vector.
 
         Args:
-            scalar (int | float): The scalar value.
+            t (Self): A vector to add to the instance.
 
         Returns:
-            Self: A mutated Vector that has been added by the scalar value.
+            Self: A new Vector that has element wise sums.
         """
         if not isinstance(other, Vec):
-            raise TypeError(f"Expected Vec: {type(t)}")
+            raise TypeError(f"Expected Vec: {type(other)}")
 
         if len(self.elements) != len(other.elements):
             raise TypeError(f"The vectors must be for the same dimentions")
@@ -224,7 +226,7 @@ class Vec:
             L2Norm (float): sqrt(e[0]^2 + e[1]^2 + e[2]^2 + ... + e[n-1]^2)
         """
         sum_square = sum(x **2 for x in self.elements)
-        return math.sqrt(sum_square)
+        return round(math.sqrt(sum_square), 5)
 
 if __name__ == "__main__":
     v1 = Vec([1, 2, 3])
@@ -232,6 +234,8 @@ if __name__ == "__main__":
 
     print(v1)
     print(v2)
+
+    print(len(v1))
 
     v3 = -v1
     print(v3)
@@ -247,12 +251,18 @@ if __name__ == "__main__":
 
     v6 = 5 * v5
     print(v6)
-    print("------")
+    
     v6 = v5 * 5
     print(v6)
 
     v6 *= 67
     print(v6)
+
+    v7 = v2 + v1
+    print(v7)
+
+    v2 += v1
+    print(v2)
 
     print(Vec.zeros(6))
     print(Vec.ones(7))
@@ -260,6 +270,3 @@ if __name__ == "__main__":
 
     v8 = Vec([-3, 2, -1, 1, -1])
     print(Vec.norm(v8))
-
-    # v9 = Vec(67)
-    # print(v9)
