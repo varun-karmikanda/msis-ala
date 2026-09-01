@@ -20,4 +20,6 @@ src/linalg/lib
 src/linalg/include
 src/linalg/share
 
-/src/venv
+venv/
+__pycache__/
+*.pyc
