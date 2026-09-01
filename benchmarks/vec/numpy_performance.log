@@ -1,0 +1,40 @@
+
+--------------------- ADD  ---------------------
+size=   2048k | operation= add  | time=  0.04 ms
+size=   4096k | operation= add  | time=  0.04 ms
+size=   8192k | operation= add  | time=  0.08 ms
+size=  16384k | operation= add  | time=  0.16 ms
+size=  32768k | operation= add  | time=  0.29 ms
+size=  65536k | operation= add  | time=  0.68 ms
+
+--------------------- SUB  ---------------------
+size=   2048k | operation= sub  | time=  0.02 ms
+size=   4096k | operation= sub  | time=  0.03 ms
+size=   8192k | operation= sub  | time=  0.08 ms
+size=  16384k | operation= sub  | time=  0.14 ms
+size=  32768k | operation= sub  | time=  0.26 ms
+size=  65536k | operation= sub  | time=  0.53 ms
+
+--------------------- IADD ---------------------
+size=   2048k | operation= iadd | time=  0.03 ms
+size=   4096k | operation= iadd | time=  0.05 ms
+size=   8192k | operation= iadd | time=  0.07 ms
+size=  16384k | operation= iadd | time=  0.13 ms
+size=  32768k | operation= iadd | time=  0.26 ms
+size=  65536k | operation= iadd | time=  0.49 ms
+
+--------------------- MUL  ---------------------
+size=   2048k | operation= mul  | time=  0.02 ms
+size=   4096k | operation= mul  | time=  0.02 ms
+size=   8192k | operation= mul  | time=  0.03 ms
+size=  16384k | operation= mul  | time=  0.07 ms
+size=  32768k | operation= mul  | time=  0.14 ms
+size=  65536k | operation= mul  | time=  0.27 ms
+
+--------------------- IMUL ---------------------
+size=   2048k | operation= imul | time=  0.01 ms
+size=   4096k | operation= imul | time=  0.02 ms
+size=   8192k | operation= imul | time=  0.03 ms
+size=  16384k | operation= imul | time=  0.07 ms
+size=  32768k | operation= imul | time=  0.14 ms
+size=  65536k | operation= imul | time=  0.27 ms
