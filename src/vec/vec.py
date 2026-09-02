@@ -213,7 +213,6 @@ class Vec:
         result = [round(random.uniform(0, 1), 5) for _ in range(n)]
         return Vec(result)
 
-    @staticmethod
     def norm(self: Self) -> float:
         """
         Static method that calculates the Euclidean norm (L2 norm) of the vector.
@@ -269,4 +268,4 @@ if __name__ == "__main__":
     print(Vec.uniform(3))
 
     v8 = Vec([-3, 2, -1, 1, -1])
-    print(Vec.norm(v8))
+    print(v8.norm())
