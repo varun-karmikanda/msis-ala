@@ -204,10 +204,10 @@ def test_uniform():
 
 def test_norm():
     v1 = Vec([-3, 2, -1, 1, -1])
-    assert Vec.norm(v1) == 4
+    assert v1.norm() == 4
 
     v2 = Vec([6, 7, 67, 6767])
-    assert Vec.norm(v2) == 6767.33796
+    assert v2.norm() == 6767.33796
 
 
 if __name__ == "__main__":
