@@ -215,7 +215,7 @@ class Vec:
 
     def norm(self: Self) -> float:
         """
-        Static method that calculates the Euclidean norm (L2 norm) of the vector.
+        Method that calculates the Euclidean norm (L2 norm) of the vector.
         sqrt(e[0]^2 + e[1]^2 + e[2]^2 + ... + e[n-1]^2)
 
         Args:
@@ -224,8 +224,45 @@ class Vec:
         Returns:
             L2Norm (float): sqrt(e[0]^2 + e[1]^2 + e[2]^2 + ... + e[n-1]^2)
         """
-        sum_square = sum(x **2 for x in self.elements)
+        sum_square = sum(x ** 2 for x in self.elements)
         return round(math.sqrt(sum_square), 5)
+
+    def mean(self: Self) -> float:
+        """
+        Method to calculate the mean/average of the vector.
+        For a vector 'x' with 'n' elements x1, x2, ... xn.
+
+        Mean(x) = ( x1 + x2 + ... + xn ) / n
+
+        Args:
+            Vec: The vector to calculate the mean.
+        
+        Returns:
+            Mean (float): ( x1 + x2 + ... + xn ) / n
+        """
+        return ((sum(x for x in self.elements)) / len(self.elements))
+
+    def demean(self: Self) -> Self:
+        """
+        De-meaned vector: A vector where each value is substracted by the mean of the vector.
+        For a vector 'x' with 'n' elements 
+
+        De-mean (x̄) = x - mean(x) * 1n
+
+        Where '1n' is the ones vector with n elements
+
+        Args:
+            Vec: The vector whose De-mean is need to be calculated
+
+        Returns:
+            De-mean (float): x - mean(x) * 1n
+        """
+        # mean = self.mean()
+        # de_mean = [x - mean for x in self.elements]
+        # return Vec(de_mean)
+
+        return self - self.mean() * self.ones(len(self.elements))
+        
 
 if __name__ == "__main__":
     v1 = Vec([1, 2, 3])
@@ -269,3 +306,9 @@ if __name__ == "__main__":
 
     v8 = Vec([-3, 2, -1, 1, -1])
     print(v8.norm())
+
+    mean = v1.mean()
+    print(mean)
+
+    v9 = Vec([10, -2, 8, 23, 6, 75])
+    print(v9.demean())
