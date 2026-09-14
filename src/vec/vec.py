@@ -243,7 +243,7 @@ class Vec:
         Returns:
             Mean (float): ( x1 + x2 + ... + xn ) / n
         """
-        return ((sum(x for x in self.elements)) / len(self.elements))
+        return round((sum(x for x in self.elements)) / len(self.elements), 5)
 
     def demean(self: Self) -> Self:
         """
