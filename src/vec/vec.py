@@ -215,7 +215,7 @@ class Vec:
 
     def norm(self: Self) -> float:
         """
-        Static method that calculates the Euclidean norm (L2 norm) of the vector.
+        Method that calculates the Euclidean norm (L2 norm) of the vector.
         sqrt(e[0]^2 + e[1]^2 + e[2]^2 + ... + e[n-1]^2)
 
         Args:
@@ -224,8 +224,65 @@ class Vec:
         Returns:
             L2Norm (float): sqrt(e[0]^2 + e[1]^2 + e[2]^2 + ... + e[n-1]^2)
         """
-        sum_square = sum(x **2 for x in self.elements)
+        sum_square = sum(x ** 2 for x in self.elements)
         return round(math.sqrt(sum_square), 5)
+
+    def inner_product(self: Self, other: Self) -> float:
+        return sum(x * i for x, i in zip(self.elements, other.elements))
+
+    def mean(self: Self) -> float:
+        """
+        Method to calculate the mean/average of the vector.
+        For a vector 'x' with 'n' elements x1, x2, ... xn.
+
+        Mean(x) = ( x1 + x2 + ... + xn ) / n
+
+        Args:
+            Vec: The vector to calculate the mean.
+        
+        Returns:
+            Mean (float): ( x1 + x2 + ... + xn ) / n
+        """
+        return round((sum(x for x in self.elements)) / len(self.elements), 5)
+
+    def demean(self: Self) -> Self:
+        """
+        De-meaned vector: A vector where each value is substracted by the mean of the vector.
+        For a vector 'x' with 'n' elements 
+
+        De-mean (x̄) = x - mean(x) * 1n
+
+        Where '1n' is the ones vector with n elements
+
+        Args:
+            Vec: The vector whose De-mean is need to be calculated
+
+        Returns:
+            De-mean (float): x - mean(x) * 1n
+        """
+        # mean = self.mean()
+        # de_mean = [x - mean for x in self.elements]
+        # return Vec(de_mean)
+
+        return self - self.mean() * self.ones(len(self.elements))
+
+    def std(self: Self) -> float:
+        """
+        Method to calculate the standard deviation.
+        For a vector 'x' with 'n' elements x1, x2, ... xn.
+
+        std(x) = √(((x1 - mean(x))^2 + (x2 - mean(x))^2 + ... + (xn - mean(x))^2) / n)
+
+        std(x) = ||x̄|| / √n
+        where ||x̄|| is the norm of the De-mean of vector 'x'.
+
+        Args:
+            Vec: The vector to calculate the standard deviation.
+
+        Returns:
+            Standard deviation (float): ||x̄|| / √n
+        """
+        return round(self.demean().norm() / math.sqrt(len(self.elements)), 5)
 
 if __name__ == "__main__":
     v1 = Vec([1, 2, 3])
@@ -269,3 +326,12 @@ if __name__ == "__main__":
 
     v8 = Vec([-3, 2, -1, 1, -1])
     print(v8.norm())
+
+    v1.inner_product(Vec.ones(len(v1)))
+
+    v9 = Vec([10, -2, 8, 23, 6, 75])
+    print(v9.mean())
+
+    print(v9.demean())
+
+    print(v9.std())

@@ -204,10 +204,68 @@ def test_uniform():
 
 def test_norm():
     v1 = Vec([-3, 2, -1, 1, -1])
-    assert v1.norm() == 4
+    assert abs(v1.norm() - 4) < 0.00001
 
     v2 = Vec([6, 7, 67, 6767])
-    assert v2.norm() == 6767.33796
+    assert v2.norm() - 6767.33796 < 0.00001
+
+def test_mean():
+    v1 = Vec([67.67, 6.7, 7.6, 670.67, -252.64])
+    assert abs(v1.mean() - 100) < 0.00001
+
+    v2 = Vec([10, -2, 8, 23, 6, 75])
+    assert abs(v2.mean() - 20) < 0.00001
+
+    v3 = Vec([67])
+    assert abs(v3.mean() - 67) < 0.00001
+
+    v4 = Vec([-67, -55, -90])
+    assert abs(v4.mean() - (-212 / 3)) < 0.00001
+
+    v5 = Vec([67, -67, 6, 7, -6, -7])
+    assert v5.mean() == 0
+
+    v6 = Vec([67])
+    assert v6.mean() == v6.elements[0]
+
+    v7 = Vec([67, 67, 67, 67, 67])
+    assert v7.mean() == 67
+
+    v8 = Vec([0, 0, 0])
+    assert v8.mean() == 0
+
+def test_demean():
+    v1 = Vec([10, -2, 8, 23, 6, 75])
+    v1_d = v1.demean()
+    assert len(v1_d) == len(v1)
+    # assert v1_d.elements == tuple([x - v1.mean() for x in v1.elements])
+    assert v1_d.elements == (-10.0, -22.0, -12.0, 3.0, -14.0, 55.0)
+    assert v1_d.mean() == 0
+    assert sum(v1_d.elements) == 0
+
+    v2 = Vec([67, 67, 67, 67, 67])
+    v2_d = v2.demean()
+    assert len(v2_d) == len(v2)
+    assert v2_d.elements == (0.0, 0.0, 0.0, 0.0, 0.0)
+    assert v2_d.mean() == 0
+    assert sum(v2_d.elements) == 0
+
+def test_std():
+    v1 = Vec([10, -2, 8, 23, 6, 75])
+    v1_std = v1.std()
+    assert v1_std - 25.68398 < 0.00001
+
+    v2 = Vec([67, 67, 67, 67, 67])
+    v2_std = v2.std()
+    assert v2_std - 0 < 0.00001
+
+    v3 = Vec([-67, -51, -95, -21])
+    v3_std = v3.std()
+    assert v3_std - 26.77219 < 0.00001
+
+    v4 = Vec([0, 0, 0, 0])
+    v4_std = v4.std()
+    assert v4_std - 0 == 0
 
 
 if __name__ == "__main__":
@@ -228,3 +286,6 @@ if __name__ == "__main__":
     test_ones()
     test_uniform()
     test_norm()
+    test_mean()
+    test_demean()
+    test_std()
