@@ -1,10 +1,12 @@
 import random
 import math
+import os
 from typing import Self
+from gensim.models import KeyedVectors
 
 class Vec:
 
-    def __init__(self, src=None) -> Self:
+    def __init__(self, src=None, path="assets/glove50/glove_50_fast.wordvectors") -> Self:
         """
         The constructor that instanciates the Vector instance.
         
@@ -14,6 +16,15 @@ class Vec:
         if not src:
             raise TypeError("Vector connot be empty!!")
         else:
+            if isinstance(src, str):
+                word = src
+                word_vec = self.get_word_vector(word, path)
+
+                if word_vec is None:
+                    raise ValueError(f"Could not retrive vector for the word {word}")
+
+                src = word_vec.tolist()
+            
             elements = tuple(src)
 
             for x in elements:
@@ -284,6 +295,33 @@ class Vec:
         """
         return round(self.demean().norm() / math.sqrt(len(self.elements)), 5)
 
+    @staticmethod
+    def load_model(path: str) -> KeyedVectors:
+        try:
+            fast_model_path = os.path.expanduser(path)
+            return KeyedVectors.load(fast_model_path, mmap='r')
+        except Exception as e:
+            print(f"Failed to load the model in word2vec format: {e}")
+        return None
+
+    @staticmethod
+    def get_word_vector(word: str, path: str):
+        model = Vec.load_model(path)
+
+        if model is None:
+            return None
+
+        word = word.lower()
+
+        try:
+            v = model[word]
+            assert len(v) == 50
+            return v
+        except KeyError:
+            print(f"Word {word} is not in the model vocabulary")
+
+        return None
+
 if __name__ == "__main__":
     v1 = Vec([1, 2, 3])
     v2 = Vec([3, 5, 6])
@@ -335,3 +373,8 @@ if __name__ == "__main__":
     print(v9.demean())
 
     print(v9.std())
+
+    v10 = Vec("varun")
+    print(type(v10))
+    print(type(v10.elements))
+    print(v10.elements)
