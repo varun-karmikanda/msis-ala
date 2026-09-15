@@ -23,3 +23,5 @@ src/linalg/share
 venv/
 __pycache__/
 *.pyc
+
+glove50/
