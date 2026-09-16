@@ -17,6 +17,14 @@ msis-ala/
 ├── README.md
 └── requirements.txt
 ```
+---
+### Files
+
+**Vector class** ➜ [`vec.py`](../src/vec/vec.py)
+
+**Vector test** ➜ [`test_vector.py`](../tests/unit/vec/test_vector.py)
+
+---
 
 **Clone the repository**
 ```
