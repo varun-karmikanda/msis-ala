@@ -224,6 +224,50 @@ class Vec:
         result = [round(random.uniform(0, 1), 5) for _ in range(n)]
         return Vec(result)
 
+    def add(self: Self, other: Self) -> Self:
+        """
+        Addition of 2 vectors of the same dimentions.
+
+        Args:
+            t (Self): A vector to add to the instance.
+
+        Returns:
+            Self: A new Vector that has element wise sums.
+        """
+        return self.__add__(other)
+
+    def scale(self: Self, scalar: int | float) -> Self:
+        """
+        Multiplies the each element of the scalar by the given scalar numeric value.
+
+        Args:
+            scalar (int | float): The scalar value.
+
+        Returns:
+            Self: A new Vector that has been multiplied by the scalar value.
+        """
+        return self.__mul__(scalar)
+
+    def dot(self: Self, other: Self) -> float:
+        """
+        Calculates the dot product of the 2 vectors.
+        For a vector 'a' and 'b', both of dimention 'n'
+        dot_product = (a1 * b1) + (a2 * b2) + ... + (an + bn)
+        dot_product = ||a|| * ||b|| * cos(theta)
+
+        Args:
+            other (self): The vector to multiply with the self
+        
+        Returns:
+            Dot product (float): The scalar value which is the dot product of 2 vectors
+        """
+        if self is None or other is None:
+            raise TypeError("Expected a vector")
+        if len(self.elements) != len(other.elements):
+            raise TypeError(f"Vectors must be of same dimenstion")
+        return sum(x * i for x, i in zip(self.elements, other.elements))
+        
+
     def norm(self: Self) -> float:
         """
         Method that calculates the Euclidean norm (L2 norm) of the vector.
@@ -238,8 +282,8 @@ class Vec:
         sum_square = sum(x ** 2 for x in self.elements)
         return round(math.sqrt(sum_square), 5)
 
-    def inner_product(self: Self, other: Self) -> float:
-        return sum(x * i for x, i in zip(self.elements, other.elements))
+    def cosine_similarity(self: Self, other: Self) -> float:
+        pass
 
     def mean(self: Self) -> float:
         """
