@@ -76,7 +76,7 @@ class Vec:
         if len(self.elements) != len(t.elements):
             raise TypeError(f"The vectors must be for the same dimentions")
 
-        result = [round(x + y, 5) for x, y in zip(self.elements, t.elements)]
+        result = [round(x + y, 7) for x, y in zip(self.elements, t.elements)]
         return Vec(result)
     
     def __sub__(self, t: Self) -> Self:
@@ -95,7 +95,7 @@ class Vec:
         if len(self.elements) != len(t.elements):
             raise TypeError(f"The vectors must be for the same dimentions")
 
-        result = [round(x - y, 5) for x, y in zip(self.elements, t.elements)]
+        result = [round(x - y, 7) for x, y in zip(self.elements, t.elements)]
         return Vec(result)
 
     def __mul__(self, scalar: int | float) -> Self:
@@ -124,7 +124,7 @@ class Vec:
         if not isinstance(scalar, int | float):
             raise TypeError(f"Vector multiplication with invalid type: {type(scalar)}")
 
-        result = [round(x * scalar, 5) for x in self.elements]
+        result = [round(x * scalar, 7) for x in self.elements]
         return Vec(result)
 
     def __imul__(self, scalar: int | float) -> Self:
@@ -140,7 +140,7 @@ class Vec:
         if not isinstance(scalar, int | float):
             raise TypeError(f"Vector multiplication with invalid types: {type(scalar)}")
 
-        result = [round(x * scalar, 5) for x in self.elements]
+        result = [round(x * scalar, 7) for x in self.elements]
         self.elements = tuple(result)
         return self
 
@@ -172,7 +172,7 @@ class Vec:
         if len(self.elements) != len(other.elements):
             raise TypeError(f"The vectors must be for the same dimentions")
 
-        result = [round(x + y, 5) for x, y in zip(self.elements, other.elements)]
+        result = [round(x + y, 7) for x, y in zip(self.elements, other.elements)]
         self.elements = tuple(result)
         return self
 
@@ -221,8 +221,54 @@ class Vec:
         if n <= 0:
             raise ValueError("The value of the dimention must be positive")
         
-        result = [round(random.uniform(0, 1), 5) for _ in range(n)]
+        result = [round(random.uniform(0, 1), 7) for _ in range(n)]
         return Vec(result)
+
+    def add(self: Self, other: Self) -> Self:
+        """
+        Addition of 2 vectors of the same dimentions.
+
+        Args:
+            t (Self): A vector to add to the instance.
+
+        Returns:
+            Self: A new Vector that has element wise sums.
+        """
+        return self.__add__(other)
+
+    def scale(self: Self, scalar: int | float) -> Self:
+        """
+        Multiplies the each element of the scalar by the given scalar numeric value.
+
+        Args:
+            scalar (int | float): The scalar value.
+
+        Returns:
+            Self: A new Vector that has been multiplied by the scalar value.
+        """
+        return self.__mul__(scalar)
+
+    def dot(self: Self, other: Self) -> float:
+        """
+        Calculates the dot product of the 2 vectors.
+        For a vector 'a' and 'b', both of dimention 'n'
+
+        dot_product = a^T b
+        dot_product = (a1 * b1) + (a2 * b2) + ... + (an + bn)
+        dot_product = ||a|| * ||b|| * cos(theta)
+
+        Args:
+            other (Self): The vector to multiply with the self.
+        
+        Returns:
+            Dot product (float): The scalar value which is the dot product of 2 vectors.
+        """
+        if not isinstance(other, Vec):
+            raise TypeError(f"Expected a vector instance {type(other)}")
+        if len(self.elements) != len(other.elements):
+            raise TypeError(f"Vectors must be of same dimenstion")
+        return sum(x * i for x, i in zip(self.elements, other.elements))
+        
 
     def norm(self: Self) -> float:
         """
@@ -236,10 +282,26 @@ class Vec:
             L2Norm (float): sqrt(e[0]^2 + e[1]^2 + e[2]^2 + ... + e[n-1]^2)
         """
         sum_square = sum(x ** 2 for x in self.elements)
-        return round(math.sqrt(sum_square), 5)
+        return round(math.sqrt(sum_square), 7)
 
-    def inner_product(self: Self, other: Self) -> float:
-        return sum(x * i for x, i in zip(self.elements, other.elements))
+    def cosine_similarity(self: Self, other: Self) -> float:
+        """
+        Calculate the similarity between the 2 vectors.
+        If the cosine_similarity is 1 both vector are similar
+        If the cosine_similarity is -1 both vector are opposite to seach other
+
+        cosine_similarity = a^T b / ( ||a|| * ||b|| )
+
+        Args:
+            other (Self): The vector to find the similarity.
+        
+        Returns:
+            similarity (float): The similarity of the vector and value lies from the range [-1, 1]
+        """
+        if not isinstance(other, Vec):
+            raise TypeError(f"Expected a vector instance {type(other)}")
+        similarity_score = self.dot(other) / (self.norm() * other.norm())
+        return round(similarity_score, 7)
 
     def mean(self: Self) -> float:
         """
@@ -254,7 +316,7 @@ class Vec:
         Returns:
             Mean (float): ( x1 + x2 + ... + xn ) / n
         """
-        return round((sum(x for x in self.elements)) / len(self.elements), 5)
+        return round((sum(x for x in self.elements)) / len(self.elements), 7)
 
     def demean(self: Self) -> Self:
         """
@@ -293,7 +355,7 @@ class Vec:
         Returns:
             Standard deviation (float): ||x̄|| / √n
         """
-        return round(self.demean().norm() / math.sqrt(len(self.elements)), 5)
+        return round(self.demean().norm() / math.sqrt(len(self.elements)), 7)
 
     @staticmethod
     def load_model(path: str) -> KeyedVectors:
@@ -365,7 +427,7 @@ if __name__ == "__main__":
     v8 = Vec([-3, 2, -1, 1, -1])
     print(v8.norm())
 
-    v1.inner_product(Vec.ones(len(v1)))
+    # v1.inner_product(Vec.ones(len(v1)))
 
     v9 = Vec([10, -2, 8, 23, 6, 75])
     print(v9.mean())
@@ -378,3 +440,17 @@ if __name__ == "__main__":
     print(type(v10))
     print(type(v10.elements))
     print(v10.elements)
+
+    v11 = Vec([67, 33])
+    v12 = Vec([33, 67])
+    v13 = v11.add(v12)
+    print(v13)
+
+    v14 = v13.scale(.67)
+    print(v14)
+
+    dot_product = v13.dot(v14)
+    print(dot_product)
+
+    similarity_score = v13.cosine_similarity(v14)
+    print(similarity_score)

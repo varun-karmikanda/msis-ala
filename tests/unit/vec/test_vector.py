@@ -1,4 +1,5 @@
 import math
+import pytest
 from src.vec.vec import Vec
 
 # class TestVec:
@@ -117,7 +118,7 @@ def test_add():
     v_word_1 = Vec("Varun")
     v_word_2 = Vec("VK")
     v_word_sum = v_word_1 + v_word_2
-    v_word_expected_sum = tuple(round(v1 + v2, 5) for v1, v2 in zip(v_word_1.elements, v_word_2.elements))
+    v_word_expected_sum = tuple(round(v1 + v2, 7) for v1, v2 in zip(v_word_1.elements, v_word_2.elements))
     assert v_word_sum.elements == v_word_expected_sum
 
 def test_sub():
@@ -141,7 +142,7 @@ def test_sub():
     v_word_1 = Vec("VK")
     v_word_2 = Vec("67")
     v_word_diff = v_word_1 - v_word_2
-    v_word_expected_diff = tuple(round(v1 - v2, 5) for v1, v2 in zip(v_word_1.elements, v_word_2.elements))
+    v_word_expected_diff = tuple(round(v1 - v2, 7) for v1, v2 in zip(v_word_1.elements, v_word_2.elements))
     assert v_word_diff.elements == v_word_expected_diff
 
 def test_mul():
@@ -157,7 +158,7 @@ def test_mul():
 
     v_word_1 = Vec("VK")
     v_word_mul = v_word_1 * 5
-    v_word_expected_mul = tuple(round(v1 * 5, 5) for v1 in v_word_1.elements)
+    v_word_expected_mul = tuple(round(v1 * 5, 7) for v1 in v_word_1.elements)
     assert v_word_mul.elements == v_word_expected_mul
 
 def test_rmul():
@@ -173,7 +174,7 @@ def test_rmul():
 
     v_word_1 = Vec("VK")
     v_word_rmul = 6 * v_word_1
-    v_word_expected_rmul = tuple(round(6 * v1, 5) for v1 in v_word_1.elements)
+    v_word_expected_rmul = tuple(round(6 * v1, 7) for v1 in v_word_1.elements)
     assert v_word_rmul.elements == v_word_expected_rmul
 
 def test_imul():
@@ -190,7 +191,7 @@ def test_imul():
     v_word_1 = Vec("VK")
     v_word = v_word_1.elements
     v_word_1 *= 7
-    v_word_expected_imul = tuple(round(7 * v1, 5) for v1 in v_word)
+    v_word_expected_imul = tuple(round(7 * v1, 7) for v1 in v_word)
     assert v_word_1.elements == v_word_expected_imul
 
 def test_radd():
@@ -214,7 +215,7 @@ def test_radd():
     v_word_1 = Vec("Varun")
     v_word_2 = Vec("VK")
     v_word_sum = v_word_2 + v_word_1
-    v_word_expected_sum = tuple(round(v2 + v1, 5) for v1, v2 in zip(v_word_2.elements, v_word_1.elements))
+    v_word_expected_sum = tuple(round(v2 + v1, 7) for v1, v2 in zip(v_word_2.elements, v_word_1.elements))
     assert v_word_sum.elements == v_word_expected_sum
 
 def test_iadd():
@@ -239,7 +240,7 @@ def test_iadd():
     v_word_2 = Vec("VK")
     v_word = v_word_1.elements
     v_word_1 += v_word_2 
-    v_word_expected_sum = tuple(round(v2 + v1, 5) for v1, v2 in zip(v_word, v_word_2.elements))
+    v_word_expected_sum = tuple(round(v2 + v1, 7) for v1, v2 in zip(v_word, v_word_2.elements))
     assert v_word_1.elements == v_word_expected_sum
     
 def test_zeros():
@@ -283,7 +284,7 @@ def test_norm():
     assert v2.norm() - 6767.33796 < 0.00001
 
     v_word = Vec("nitrox")
-    excepted_norm = round(math.sqrt(sum(x * x for x in v_word.elements)), 5)
+    excepted_norm = round(math.sqrt(sum(x * x for x in v_word.elements)), 7)
     assert abs(v_word.norm() - excepted_norm) < 0.00001
 
 def test_mean():
@@ -312,7 +313,7 @@ def test_mean():
     assert v8.mean() == 0
 
     v_word = Vec("vk")
-    expected_mean = round((sum(x for x in v_word.elements)) / len(v_word.elements), 5)
+    expected_mean = round((sum(x for x in v_word.elements)) / len(v_word.elements), 7)
     assert abs(v_word.mean() - expected_mean) < 0.00001
 
 def test_demean():
@@ -337,7 +338,7 @@ def test_demean():
     assert len(v_word) == 50
     assert len(v_word_d) == 50
     assert v_word_d.mean() == 0
-    assert round(sum(v_word_d.elements), 5) < 0.00001
+    assert round(sum(v_word_d.elements), 7) < 0.00001
 
 
 def test_std():
@@ -359,8 +360,56 @@ def test_std():
 
     v_word = Vec("nitrox")
     v_word_std = v_word.std()
-    v_word_expected_std = round(v_word.demean().norm() / math.sqrt(50), 5)
+    v_word_expected_std = round(v_word.demean().norm() / math.sqrt(50), 7)
     assert abs(v_word_std - v_word_expected_std) < 0.00001
+
+def test_dot():
+    v1 = Vec([67, 67])
+    v2 = Vec([100, 100])
+    assert abs(v1.dot(v2) - 13400) < 0.00001
+
+    try:
+        v1.dot([67, 67])
+        assert False, "Expected TypeError"
+    except TypeError:
+        pass
+
+    try:
+        v1.dot(Vec([67, 67, 67]))
+        assert False, "Expected TypeError"
+    except TypeError:
+        pass
+
+    assert abs(Vec([67, 0]).dot(Vec([0, 67])) - 0.0) < 0.00001
+
+    assert abs(Vec([67, -100]).dot(Vec([-67, 100])) - (-14489.0)) < 0.00001
+
+    assert abs(Vec([0, 0]).dot(Vec([67, 67])) - 0.0) < 0.00001
+
+    assert abs(v1.dot(v1) - v1.norm() ** 2) < 0.00001
+
+def test_cosine_similarity():
+
+    assert abs(Vec([67, 67]).cosine_similarity(Vec([100, 100])) - 1.0) < 0.00001
+
+    assert abs(Vec([67,0]).cosine_similarity(Vec([0,67])) - 0.0) < 0.00001
+
+    assert (Vec([67,0]).cosine_similarity(Vec([-67, 0])) - (- 1.0)) < 0.00001
+
+    assert (Vec([67,0]).cosine_similarity(Vec([67, 67])) - 0.7071068) < 0.00001
+
+    v1 = Vec([67, 67])
+    try:
+        v1.dot([67, 67])
+        assert False, "Expected TypeError"
+    except TypeError:
+        pass
+
+    try:
+        v1.dot(Vec([67, 67, 67]))
+        assert False, "Expected TypeError"
+    except TypeError:
+        pass
 
 
 if __name__ == "__main__":
@@ -384,3 +433,5 @@ if __name__ == "__main__":
     test_mean()
     test_demean()
     test_std()
+    test_dot()
+    test_cosine_similarity()
