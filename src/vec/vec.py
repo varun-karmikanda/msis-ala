@@ -263,8 +263,8 @@ class Vec:
         Returns:
             Dot product (float): The scalar value which is the dot product of 2 vectors.
         """
-        if self is None or other is None:
-            raise TypeError("Expected a vector")
+        if not isinstance(other, Vec):
+            raise TypeError(f"Expected a vector instance {type(other)}")
         if len(self.elements) != len(other.elements):
             raise TypeError(f"Vectors must be of same dimenstion")
         return sum(x * i for x, i in zip(self.elements, other.elements))
@@ -298,6 +298,8 @@ class Vec:
         Returns:
             similarity (float): The similarity of the vector and value lies from the range [-1, 1]
         """
+        if not isinstance(other, Vec):
+            raise TypeError(f"Expected a vector instance {type(other)}")
         similarity_score = self.dot(other) / (self.norm() * other.norm())
         return round(similarity_score, 7)
 
@@ -451,10 +453,4 @@ if __name__ == "__main__":
     print(dot_product)
 
     similarity_score = v13.cosine_similarity(v14)
-    print(similarity_score)
-
-    similarity_score = Vec([67,0]).cosine_similarity(Vec([0,67]))
-    print(similarity_score)
-
-    similarity_score = Vec([67,0]).cosine_similarity(Vec([-67, 0]))
     print(similarity_score)
