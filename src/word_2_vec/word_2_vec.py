@@ -1,23 +1,20 @@
 import os
 from pathlib import Path
 
-def clean_tags_file(path: str) -> Path:
+def process_tags_file(path: str) -> Path:
     try:
         file_path = Path(os.path.expanduser(path))
-        print("Actual: ", file_path)
-        print("Final: ", file_path)
         
         output_file_path = file_path.parent.parent / "processed" / file_path.name
-        print("op: ", output_file_path)
         
         with open(file_path, "r") as file:
             content = file.read()
+            
+        comma_seperated_tags = content.replace("\n", ",").split(",")
+                
+        words = [tags.strip() for tags in comma_seperated_tags if tags.strip()]
         
-        print(content)
-        print(type(content))
-        
-        cleaned_content = content.replace(" ", "")
-        print(cleaned_content) 
+        cleaned_content = ",".join(words)
         
         output_file_path.parent.mkdir(parents=True, exist_ok=True)
         
@@ -32,7 +29,7 @@ def clean_tags_file(path: str) -> Path:
     return Path(output_file_path)
 
 def get_all_tags(path: str) -> tuple[str]:
-    file_path = clean_tags_file(path)
+    file_path = process_tags_file(path)
     
     with open(file_path, "r") as file:
         content = file.read()
@@ -43,6 +40,5 @@ def get_all_tags(path: str) -> tuple[str]:
 
 tags = get_all_tags("assets/word_2_vec/raw/tags.txt")
 print(tags)
-print(type(tags))
 
 
