@@ -1,6 +1,7 @@
 import os
 import re
 import string
+import numpy as np
 from src.vec.vec import Vec
 from pathlib import Path
 from gensim.models import KeyedVectors
@@ -164,10 +165,38 @@ def build_text_matrix(model, tokens: tuple[str]):
             
 
 def similarity_matrix_vector_class(W, T):
-    pass
+    S = []
+    
+    for i in range(len(W)):
+        row = []
+        for j in range(len(T)):
+            similarity_score = Vec(W[i]).cosine_similarity(Vec(T[j]))
+            row.append(similarity_score)
+        S.append(row)
+    
+    return S
+            
 
 def similarity_matrix_numpy(W, T):
-    pass
+    T_norm = np.linalg.norm(T, axis=1, keepdims=True)
+    W_norm = np.linalg.norm(W, axis=1, keepdims=True)
+    
+    T_cap = T / T_norm
+    W_cap = W / W_norm
+    
+    S = W_cap @ T_cap.T
+    
+    return S
+
+def verify_implementations(S, S_numpy):
+    S_vector = np.array(S)
+
+    is_close = np.allclose(S_vector, S_numpy, atol=1e-07)
+    
+    largest_abs_diff = np.max(np.abs(S_vector - S_numpy))
+    
+    return is_close, largest_abs_diff
+    
 
 if __name__ == "__main__":
 
@@ -184,8 +213,8 @@ if __name__ == "__main__":
     tag_name, T = build_tag_matrix(model, tags)
 
     tokens = get_text(text_file_path, STOPWORDS)
-    # tokens_matrix = build_text_matrix(model, tokens)
     in_vocob_tokens, out_vocob_tokens, W = build_text_matrix(model, tokens)
+    
     print(f"Number of in-vocabulary tokens: {len(in_vocob_tokens)}")
     print(f"Number of out-of-vocabulary tokens: {len(out_vocob_tokens)}")
     print(out_vocob_tokens)
@@ -194,9 +223,15 @@ if __name__ == "__main__":
     print(f"Shape of W: ({len(W)} x {len(W[0])})")
     
 
-    # sm_vector_class = similarity_matrix_vector_class(W, T)
-    # sm_numpy = similarity_matrix_numpy(W, T)
+    S = similarity_matrix_vector_class(W, T)
+    print(f"Shape of S: ({len(S)} x {len(S[0])})")
     
+    S_numpy = similarity_matrix_numpy(W, T)
+    print(f"Shape of S_numpy: ({len(S_numpy)} x {len(S_numpy[0])})")
+    
+    is_close ,largest_abs_diff = verify_implementations(S, S_numpy)
+    print(f"Comparing (is close)  : {is_close}")
+    print(f"Largest abs difference: {largest_abs_diff}")
     
     
     
