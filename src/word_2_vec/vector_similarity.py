@@ -73,18 +73,20 @@ def get_tags(path: str) -> tuple[str]:
 
 
 def build_tag_matrix(model, tags: tuple[str]):
-    tags_matrix = []    
+    tags_matrix = []
+    tags_valid = []
     for tag in tags:
         try:
             word_matrix = get_word_vector(model, tag)
             word_matrix_list = word_matrix.tolist()
             tags_matrix.append(word_matrix_list)
+            tags_valid.append(tag)
         except ValueError:
             print(f"Word '{tag}' not in model vocabulary`")
 
     # tags_matrix = [get_word_vector(model, tag).tolist() for tag in tags]
 
-    return tags, tuple(tags_matrix)
+    return tags_valid, tuple(tags_matrix)
 
 # TEXT
 def preprocess_text(path: str, STOPWORDS: set[str]) -> Path:
@@ -197,6 +199,28 @@ def verify_implementations(S, S_numpy):
     
     return is_close, largest_abs_diff
     
+def rank_tags(tag_names, S, in_vocob_tokens):
+    max_scores = np.max(S, axis=0)
+    best_token_index = np.argmax(S, axis=0)
+    
+    ranked_results = []
+    for j, tag in enumerate(tag_names):
+        best_token = in_vocob_tokens[best_token_index[j]]
+        score = float(max_scores[j])
+        ranked_results.append((tag, score, best_token))
+        
+    ranked_results.sort(key=lambda x: x[1], reverse=True)
+    return ranked_results
+    
+def print_ranked_tags(ranked_results):
+    table_head = f"| Rank{"":<2} | Tag{"":<17} | Score{"":<3} | Best-matching text word |"
+    print("-" * len(table_head))
+    print(table_head)
+    print("-" * len(table_head))
+    for rank, (tag, score, best_token) in enumerate(ranked_results, start=1):
+        print(f"| {rank:<6} | {tag:<20} | {score:<8.2f} | {best_token:<23} |")
+    # results = {}
+    print("-" * len(table_head))
 
 if __name__ == "__main__":
 
@@ -233,5 +257,7 @@ if __name__ == "__main__":
     print(f"Comparing (is close)  : {is_close}")
     print(f"Largest abs difference: {largest_abs_diff}")
     
+    ranked_results = rank_tags(tags, S, in_vocob_tokens)
+    print_ranked_tags(ranked_results)
     
     
