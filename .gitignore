@@ -23,3 +23,5 @@ src/linalg/share
 venv/
 __pycache__/
 *.pyc
+
+assets/word_2_vec/processed/
