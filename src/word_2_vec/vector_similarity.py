@@ -12,7 +12,6 @@ def load_model(path: str) -> KeyedVectors | None:
         return KeyedVectors.load(fast_model_path, mmap='r')
     except Exception as e:
         raise RuntimeError(f"Failed to load model in word2vec format: {e}")
-    pass
 
 def get_word_vector(model, word: str) -> list[float]:
     word = word.lower()
@@ -25,7 +24,7 @@ def get_word_vector(model, word: str) -> list[float]:
 
 def get_stopwords(path: str) -> set[str]:
     try:
-        with open(stopwords_file_path, "r") as file:
+        with open(path, "r") as file:
             return { line.strip() for line in file if line.strip() }
     except FileNotFoundError:
         print(f"File not found at path: {path}")
