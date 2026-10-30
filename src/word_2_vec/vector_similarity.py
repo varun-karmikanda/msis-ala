@@ -12,7 +12,6 @@ def load_model(path: str) -> KeyedVectors | None:
         return KeyedVectors.load(fast_model_path, mmap='r')
     except Exception as e:
         raise RuntimeError(f"Failed to load model in word2vec format: {e}")
-    pass
 
 def get_word_vector(model, word: str) -> list[float]:
     word = word.lower()
@@ -25,7 +24,7 @@ def get_word_vector(model, word: str) -> list[float]:
 
 def get_stopwords(path: str) -> set[str]:
     try:
-        with open(stopwords_file_path, "r") as file:
+        with open(path, "r") as file:
             return { line.strip() for line in file if line.strip() }
     except FileNotFoundError:
         print(f"File not found at path: {path}")
@@ -76,15 +75,10 @@ def build_tag_matrix(model, tags: tuple[str]):
     tags_matrix = []
     tags_valid = []
     for tag in tags:
-        try:
-            word_matrix = get_word_vector(model, tag)
-            word_matrix_list = word_matrix.tolist()
-            tags_matrix.append(word_matrix_list)
-            tags_valid.append(tag)
-        except ValueError:
-            print(f"Word '{tag}' not in model vocabulary`")
-
-    # tags_matrix = [get_word_vector(model, tag).tolist() for tag in tags]
+        word_matrix = get_word_vector(model, tag)
+        word_matrix_list = word_matrix.tolist()
+        tags_matrix.append(word_matrix_list)
+        tags_valid.append(tag)
 
     return tags_valid, tuple(tags_matrix)
 
