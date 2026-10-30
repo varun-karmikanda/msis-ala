@@ -75,15 +75,10 @@ def build_tag_matrix(model, tags: tuple[str]):
     tags_matrix = []
     tags_valid = []
     for tag in tags:
-        try:
-            word_matrix = get_word_vector(model, tag)
-            word_matrix_list = word_matrix.tolist()
-            tags_matrix.append(word_matrix_list)
-            tags_valid.append(tag)
-        except ValueError:
-            print(f"Word '{tag}' not in model vocabulary`")
-
-    # tags_matrix = [get_word_vector(model, tag).tolist() for tag in tags]
+        word_matrix = get_word_vector(model, tag)
+        word_matrix_list = word_matrix.tolist()
+        tags_matrix.append(word_matrix_list)
+        tags_valid.append(tag)
 
     return tags_valid, tuple(tags_matrix)
 
