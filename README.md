@@ -2,4 +2,6 @@
 
 ## Assignments
 
-**Assignment 01** ➜ [`assignment_01.md`](assignments/assignment_01.md)
+**Assignment 01 — Vector Class** ➜ [`assignment_01.md`](assignments/assignment_01.md)
+
+**Assignment 02 — Word2Vec Semantic Tagging** ➜ [`assignment_02.md`](assignments/assignment_02.md)
