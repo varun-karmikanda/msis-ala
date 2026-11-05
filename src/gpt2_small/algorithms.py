@@ -41,21 +41,22 @@ def layer_norn(e, gamma, beta, epsilon=1e-5):
     e_cap = e_cap_intermidiate * gamma + beta
     
     return e_cap
+    
 
 if __name__ == "__main__":
     # Number of tokens(lx)
     lx = 2  
 
     # dimention of primary token sequence
-    de = 3
-    dx = 3  # 768
-    dz = 3  # 768
+    de = 768
+    dx = 768
+    dz = 768
 
     # dimention of the attention
-    datt = 4    #64
+    datt = 64
 
     # dimention of output
-    dout = 4    #64
+    dout = 64
 
     # Input vector
     X = np.random.rand(dx, lx)
@@ -71,11 +72,13 @@ if __name__ == "__main__":
 
     mask = np.triu(np.ones((lx, lx)))
     
-    attention(X, X, (Wq, Wk, Wv, bq, bk, bv), mask)
+    W = (Wq, Wk, Wv, bq, bk, bv)
+    
+    attention(X, X, W, mask)
     
     
     # Token embedding
-    N_V = 5 # 50257
+    N_V = 50257
     v = 2
     
     We = np.random.rand(de, N_V)
