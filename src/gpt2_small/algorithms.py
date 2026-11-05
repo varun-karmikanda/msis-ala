@@ -30,7 +30,17 @@ def attention(X, Z, W, mask):
 
 def token_embedding(v, We):
     print(We[:, v])
-
+    
+def layer_norn(e, gamma, beta, epsilon=1e-5):
+    m = np.mean(e)
+    
+    v = np.var(e)
+    
+    e_cap_intermidiate = (e - m) / np.sqrt(v + epsilon)
+    
+    e_cap = e_cap_intermidiate * gamma + beta
+    
+    return e_cap
 
 if __name__ == "__main__":
     # Number of tokens(lx)
@@ -73,4 +83,8 @@ if __name__ == "__main__":
     
     token_embedding(v, We)
 
-    # test_attention()
+    # layer norm
+    e = np.random.rand(de)
+    
+    out = layer_norn(e, 1, 0)
+    print(out.mean(), out.std())
