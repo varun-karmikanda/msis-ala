@@ -5,7 +5,8 @@
 ```text
 msis-ala/
 ├── assets/
-│   └── glove50/
+│   ├── glove50/
+│   └── word_2_vec
 ├── src/
 │   └── word_2_vec/
 │       └── vector_similarity.py
@@ -62,5 +63,10 @@ python3 -m src.word_2_vec.vector_similarity
 ```
 python3 -m tests.unit.word_2_vec.test_vector_similarity
 ```
+
+### References
+
+- [Word2Vec and semantic tagging sources](../assets/word_2_vec/citation.md)
+- [Stopwords list used for text preprocessing](https://gist.github.com/sebleier/554280)
 
 [Back to Main README](../README.md)
