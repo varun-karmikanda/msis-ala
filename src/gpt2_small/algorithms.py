@@ -1,0 +1,76 @@
+import numpy as np
+
+def attention(X, Z, W, mask):
+    Wq = W[0]
+    Wk = W[1]
+    Wv = W[2]
+    bq = W[3]
+    bk = W[4]
+    bv = W[5]
+
+    # lx_1 = np.ones((1, X.shape[1]))
+    lx_1 = np.ones(X.shape[1])
+
+    K = Wk @ X + bk[:, None]
+    Q = Wq @ Z + bq[:, None]
+    V = Wv @ Z + bv[:, None]
+
+    S = K.T @ Q / np.sqrt(datt)
+    
+    S = np.where(mask.astype(bool), S, -np.inf)
+    
+    S = S - S.max(axis=0, keepdims=True)
+    
+    P = np.exp(S)
+    
+    softmax_S = P / P.sum(axis=0, keepdims=True)
+
+    return V @ softmax_S
+    
+
+def token_embedding(v, We):
+    print(We[:, v])
+
+
+if __name__ == "__main__":
+    # Number of tokens(lx)
+    lx = 2  
+
+    # dimention of primary token sequence
+    de = 3
+    dx = 3  # 768
+    dz = 3  # 768
+
+    # dimention of the attention
+    datt = 4    #64
+
+    # dimention of output
+    dout = 4    #64
+
+    # Input vector
+    X = np.random.rand(dx, lx)
+
+    Wq = np.random.rand(datt, dx)
+    bq = np.random.rand(datt)
+
+    Wk = np.random.rand(datt, dz)
+    bk = np.random.rand(datt)
+
+    Wv = np.random.rand(dout, dz)
+    bv = np.random.rand(dout)
+
+    mask = np.triu(np.ones((lx, lx)))
+    
+    attention(X, X, (Wq, Wk, Wv, bq, bk, bv), mask)
+    
+    
+    # Token embedding
+    N_V = 5 # 50257
+    v = 2
+    
+    We = np.random.rand(de, N_V)
+    print(We)
+    
+    token_embedding(v, We)
+
+    # test_attention()
