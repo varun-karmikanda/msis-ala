@@ -1,0 +1,10 @@
+- l_max = 1024
+- L (layers) = 12
+- H (heads) = 12
+- N_V (vocabulary) = 50257
+- W_u (total parameters) = 124.4M
+- d_e (model width) = 768
+- d_mlp = (MLP width) = 3072
+- d_attn = d_mid (per head) = 64
+- d_in = d_e (per head) = 768
+- d_out (per head) = 64 
