@@ -54,6 +54,11 @@ class GPT2SmallParams:
     def b_v(self):
         return self._b_v
     
+def softmax(S: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+    S = S - S.max(axis=0, keepdims=True)
+    S_exp = np.exp(S)
+    softmax = S_exp / S_exp.sum(axis=0, keepdims=True)
+    return softmax
 
 def token_embedding(v: int, W_e: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     e = W_e[:, v]
@@ -68,7 +73,7 @@ def single_query_attention(
     e_t: npt.NDArray[np.float64],
     W_qkv: npt.NDArray[np.float64],
     b_qkv: npt.NDArray[np.float64],
-) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+) -> npt.NDArray[np.float64]:
     W_q, W_k, W_v = W_qkv
     b_q, b_k, b_v = b_qkv
     
@@ -78,14 +83,34 @@ def single_query_attention(
     k = W_k @ e_t + b_k[:, None]
     v = W_v @ e_t + b_v[:, None]
     
-    logit = (q.T @ k) / np.sqrt(d_attn)
-    scores = logit - np.max(logit)
-    exp_scores = np.exp(scores)
+    S = (k.T @ q) / np.sqrt(d_attn)
     
-    alpha_t = exp_scores / np.sum(exp_scores)
+    alpha_t = softmax(S)
     
-    return alpha_t @ v
+    v_tilde = v @ alpha_t
+    return v_tilde
+
+def attention(
+    X: npt.NDArray[np.float64],
+    Z: npt.NDArray[np.float64],
+    W_qkv: npt.NDArray[np.float64],
+    b_qkv: npt.NDArray[np.float64],
+    mask: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
+    W_q, W_k, W_v = W_qkv
+    b_q, b_k, b_v = b_qkv
     
+    d_attn = W_q.shape[0]
+    
+    Q = W_q @ X + b_q[:, None]
+    K = W_k @ Z + b_k[:, None]
+    V = W_v @ Z + b_v[:, None]
+    
+    S = (K.T @ Q) / np.sqrt(d_attn)
+    S = np.where(mask.astype(bool), S, -np.inf)
+    
+    V_tilde = V @ softmax(S)
+    return V_tilde
 
 if __name__ == "__main__":
     
@@ -109,4 +134,9 @@ if __name__ == "__main__":
     b_q = params.b_q
     b_k = params.b_k
     b_v = params.b_v
-    print(single_query_attention(e, e_t, (W_q, W_k, W_v), (b_q, b_k, b_v)))
+    # print(single_query_attention(e, e_t, (W_q, W_k, W_v), (b_q, b_k, b_v)))
+    
+    X = np.random.rand(768, 10)
+    Z = np.random.rand(768, 10)
+    mask = np.triu(np.ones((10, 10)))
+    print(attention(X, Z, (W_q, W_k, W_v), (b_q, b_k, b_v), mask))
