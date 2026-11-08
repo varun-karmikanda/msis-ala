@@ -72,15 +72,19 @@ def single_query_attention(
     W_q, W_k, W_v = W_qkv
     b_q, b_k, b_v = b_qkv
     
-    d_att = W_q.shape()
-    print(d_att)
+    d_attn = W_q.shape[0]
     
     q = W_q @ e + b_q
-    k = W_k @ e_t + b_k
-    v = W_v @ e_t + b_v
+    k = W_k @ e_t + b_k[:, None]
+    v = W_v @ e_t + b_v[:, None]
     
-    x = np.exp()
-    print(x)
+    logit = (q.T @ k) / np.sqrt(d_attn)
+    scores = logit - np.max(logit)
+    exp_scores = np.exp(scores)
+    
+    alpha_t = exp_scores / np.sum(exp_scores)
+    
+    return alpha_t @ v
     
 
 if __name__ == "__main__":
@@ -105,4 +109,4 @@ if __name__ == "__main__":
     b_q = params.b_q
     b_k = params.b_k
     b_v = params.b_v
-    single_query_attention(e, e_t, (W_q, W_k, W_v), (b_q, b_k, b_v))
+    print(single_query_attention(e, e_t, (W_q, W_k, W_v), (b_q, b_k, b_v)))
