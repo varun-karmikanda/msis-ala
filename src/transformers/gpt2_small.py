@@ -2,7 +2,7 @@ import numpy as np
 import numpy.typing as npt
 
 class GPT2SmallParams:
-    def __init__(self, d_e: int = 768, N_V: int = 50257, l_max: int=1024, d_attn=64, d_in=768, d_out=64):
+    def __init__(self, d_e: int = 768, N_V: int = 50257, l_max: int=1024, d_attn=64, d_in=768, d_out=64, d_mid=64, head=12, d_out_h=768):
         self._W_e: npt.NDArray[np.float64] = np.random.rand(d_e, N_V)
         self._W_p: npt.NDArray[np.float64] = np.random.rand(d_e, l_max)
         self._e: npt.NDArray[np.float64] = np.random.rand(d_in)
@@ -13,6 +13,8 @@ class GPT2SmallParams:
         self._b_q: npt.NDArray[np.float64] = np.random.rand(d_attn)
         self._b_k: npt.NDArray[np.float64] = np.random.rand(d_attn)
         self._b_v: npt.NDArray[np.float64] = np.random.rand(d_out)
+        self._W_o: npt.NDArray[np.float64] = np.random.rand(d_out_h, head * d_mid)
+        self._b_o: npt.NDArray[np.float64] = np.random.rand(d_out_h)
     
     @property
     def W_e(self):
@@ -53,6 +55,14 @@ class GPT2SmallParams:
     @property
     def b_v(self):
         return self._b_v
+    
+    @property
+    def W_o(self):
+        return self._W_o
+    
+    @property
+    def b_o(self):
+        return self._b_o
     
 def softmax(S: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     S = S - S.max(axis=0, keepdims=True)
@@ -112,6 +122,25 @@ def attention(
     V_tilde = V @ softmax(S)
     return V_tilde
 
+def multi_head_attention(
+    X: npt.NDArray[np.float64],
+    Z: npt.NDArray[np.float64],
+    W_qkv: npt.NDArray[np.float64],
+    b_qkv: npt.NDArray[np.float64],
+    mask: npt.NDArray[np.float64],
+    heads: int,
+    W_o: npt.NDArray[np.float64],
+    b_o: npt.NDArray[np.float64],
+) -> npt.NDArray[np.float64]:
+    Y_h = [attention(X, Z, W_qkv, b_qkv, mask) for _ in range(heads)]
+    
+    Y = np.concatenate(Y_h, axis=0)
+    
+    V_tilde = W_o @ Y + b_o[:, None]
+    return V_tilde
+    
+        
+
 if __name__ == "__main__":
     
     params = GPT2SmallParams(768, 50257, 1024, 64, 768)
@@ -139,4 +168,9 @@ if __name__ == "__main__":
     X = np.random.rand(768, 10)
     Z = np.random.rand(768, 10)
     mask = np.triu(np.ones((10, 10)))
-    print(attention(X, Z, (W_q, W_k, W_v), (b_q, b_k, b_v), mask))
+    # print(attention(X, Z, (W_q, W_k, W_v), (b_q, b_k, b_v), mask))
+    
+    heads = 12
+    W_o = params.W_o
+    b_o = params.b_o
+    print(multi_head_attention(X, Z, (W_q, W_k, W_v), (b_q, b_k, b_v), mask, heads, W_o, b_o))
