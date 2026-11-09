@@ -8,6 +8,7 @@ Matrix = npt.NDArray[np.float64]
 class GPT2SmallParams:
     def __init__(self, d_e: int = 768, N_V: int = 50257, l_max: int=1024, d_attn=64, d_in=768, d_out=64, d_mid=64, H=12, d_out_h=768):
         self._W_e: Matrix = self.rand_init(d_e, N_V)
+        self._W_u: Matrix = self._W_e.T
         self._W_p: Matrix = self.rand_init(d_e, l_max)
         self._e: Vector = self.rand_init(d_in)
         self._e_t: Vector = self.rand_init(d_in)
@@ -31,12 +32,16 @@ class GPT2SmallParams:
             )
             for _ in range(H)
         )
-        self._gamma: Vector = self.rand_init(d_in)
-        self._beta: Vector = self.rand_init(d_in)
+        self._gamma: Vector = np.ones(d_in)
+        self._beta: Vector = np.zeros(d_in)
     
     @property
     def W_e(self):
         return self._W_e
+    
+    @property
+    def W_u(self):
+        return self._W_u
     
     @property
     def W_p(self):
@@ -195,6 +200,12 @@ def layer_norm(
     e_cap = s * gamma + beta
     return e_cap
 
+def unembedding(e: Vector, W_u: Matrix) -> Vector:
+    logits = W_u @ e
+    p = softmax(logits)
+    return p
+    
+
 if __name__ == "__main__":
     
     params = GPT2SmallParams(768, 50257, 1024, 64, 768)
@@ -217,7 +228,9 @@ if __name__ == "__main__":
     H = 12
     # print(multi_head_attention(X, Z, params.W, params.b, mask, H, params.W_o, params.b_o).shape)
     
-    print(layer_norm(params.e, params.gamma, params.beta))
+    # print(layer_norm(params.e, params.gamma, params.beta))
+    
+    print(unembedding(params.e, params.W_u))
     
     # W_qkv = params.W_qkv
     # print(len(W_qkv))
