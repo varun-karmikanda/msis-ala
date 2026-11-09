@@ -31,6 +31,8 @@ class GPT2SmallParams:
             )
             for _ in range(H)
         )
+        self._gamma: Vector = self.rand_init(d_in)
+        self._beta: Vector = self.rand_init(d_in)
     
     @property
     def W_e(self):
@@ -71,6 +73,14 @@ class GPT2SmallParams:
     @property
     def b(self):
         return self._b
+    
+    @property
+    def gamma(self):
+        return self._gamma
+        
+    @property
+    def beta(self):
+        return self._beta
     
     @staticmethod
     def rand_init(rows: int, cols: int | None = None) -> Vector | Matrix:
@@ -162,7 +172,28 @@ def multi_head_attention(
     Y = np.concatenate(Y_h)
     
     V_tilde = W_o @ Y + b_o[:, None]
-    return V_tilde        
+    return V_tilde
+
+def layer_norm(
+    e: Vector,
+    gamma: Vector,
+    beta: Vector,
+    epsilon: int=1e-5
+) -> Vector:
+    d_e = e.shape[0]
+    
+    # de_ones = np.ones(768)
+    # m_X = np.dot(de_ones, e) / d_e
+
+    # demean = e - m_X * de_ones
+    # v_x = np.dot(demean, demean) / d_e
+    
+    m = np.mean(e)
+    v = np.var(e)
+    
+    s = (e - m) / np.sqrt(v + epsilon)  
+    e_cap = s * gamma + beta
+    return e_cap
 
 if __name__ == "__main__":
     
@@ -184,7 +215,9 @@ if __name__ == "__main__":
     # print(attention(X, Z, params.W_qkv, params.b_qkv, mask))
     
     H = 12
-    print(multi_head_attention(X, Z, params.W, params.b, mask, H, params.W_o, params.b_o).shape)
+    # print(multi_head_attention(X, Z, params.W, params.b, mask, H, params.W_o, params.b_o).shape)
+    
+    print(layer_norm(params.e, params.gamma, params.beta))
     
     # W_qkv = params.W_qkv
     # print(len(W_qkv))
