@@ -1,20 +1,36 @@
 import numpy as np
 import numpy.typing as npt
 
+# Just to quickly differentiate(readability)
+Vector = npt.NDArray[np.float64]
+Matrix = npt.NDArray[np.float64]
+
 class GPT2SmallParams:
-    def __init__(self, d_e: int = 768, N_V: int = 50257, l_max: int=1024, d_attn=64, d_in=768, d_out=64, d_mid=64, head=12, d_out_h=768):
-        self._W_e: npt.NDArray[np.float64] = np.random.rand(d_e, N_V)
-        self._W_p: npt.NDArray[np.float64] = np.random.rand(d_e, l_max)
-        self._e: npt.NDArray[np.float64] = np.random.rand(d_in)
-        self._e_t: npt.NDArray[np.float64] = np.random.rand(d_in)
-        self._W_q: npt.NDArray[np.float64] = np.random.rand(d_attn, d_in)
-        self._W_k: npt.NDArray[np.float64] = np.random.rand(d_attn, d_in)
-        self._W_v: npt.NDArray[np.float64] = np.random.rand(d_out, d_in)
-        self._b_q: npt.NDArray[np.float64] = np.random.rand(d_attn)
-        self._b_k: npt.NDArray[np.float64] = np.random.rand(d_attn)
-        self._b_v: npt.NDArray[np.float64] = np.random.rand(d_out)
-        self._W_o: npt.NDArray[np.float64] = np.random.rand(d_out_h, head * d_mid)
-        self._b_o: npt.NDArray[np.float64] = np.random.rand(d_out_h)
+    def __init__(self, d_e: int = 768, N_V: int = 50257, l_max: int=1024, d_attn=64, d_in=768, d_out=64, d_mid=64, H=12, d_out_h=768):
+        self._W_e: Matrix = self.rand_init(d_e, N_V)
+        self._W_p: Matrix = self.rand_init(d_e, l_max)
+        self._e: Vector = self.rand_init(d_in)
+        self._e_t: Vector = self.rand_init(d_in)
+        self._W_o: Matrix = self.rand_init(d_out_h, H * d_mid)
+        self._b_o: Vector = self.rand_init(d_out_h)
+        self._W_qkv: tuple[Matrix, Matrix, Matrix] = (self.rand_init(d_attn, d_in), self.rand_init(d_attn, d_in), self.rand_init(d_out, d_in))
+        self._b_qkv: tuple[Vector, Vector, Vector] = (self.rand_init(d_attn), self.rand_init(d_attn), self.rand_init(d_out))
+        self._W: tuple[tuple[Matrix, Matrix, Matrix], ...] = tuple(
+            (
+                self.rand_init(d_attn, d_in),
+                self.rand_init(d_attn, d_in),
+                self.rand_init(d_out, d_in)
+            )
+            for _ in range(H)
+        )
+        self._b: tuple[tuple[Vector, Vector, Vector], ...] = tuple(
+            (
+                self.rand_init(d_attn),
+                self.rand_init(d_attn),
+                self.rand_init(d_out),
+            )
+            for _ in range(H)
+        )
     
     @property
     def W_e(self):
@@ -25,36 +41,12 @@ class GPT2SmallParams:
         return self._W_p
     
     @property
-    def W_q(self):
-        return self._W_q
-    
-    @property
-    def W_k(self):
-        return self._W_k
-    
-    @property
-    def W_v(self):
-        return self._W_v
-    
-    @property
     def e(self):
         return self._e
     
     @property
     def e_t(self):
         return self._e_t
-    
-    @property
-    def b_q(self):
-        return self._b_q
-    
-    @property
-    def b_k(self):
-        return self._b_k
-    
-    @property
-    def b_v(self):
-        return self._b_v
     
     @property
     def W_o(self):
@@ -64,26 +56,48 @@ class GPT2SmallParams:
     def b_o(self):
         return self._b_o
     
-def softmax(S: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+    @property
+    def W_qkv(self):
+        return self._W_qkv
+    
+    @property
+    def b_qkv(self):
+        return self._b_qkv
+    
+    @property
+    def W(self):
+        return self._W
+    
+    @property
+    def b(self):
+        return self._b
+    
+    @staticmethod
+    def rand_init(rows: int, cols: int | None = None) -> Vector | Matrix:
+        if cols is None:
+            return np.random.rand(rows)
+        return np.random.rand(rows, cols)
+    
+def softmax(S: Matrix) -> Matrix:
     S = S - S.max(axis=0, keepdims=True)
     S_exp = np.exp(S)
     softmax = S_exp / S_exp.sum(axis=0, keepdims=True)
     return softmax
 
-def token_embedding(v: int, W_e: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+def token_embedding(v: int, W_e: Matrix) -> Vector:
     e = W_e[:, v]
     return e
 
-def positional_embedding(l: int, W_p: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+def positional_embedding(l: int, W_p: Matrix) -> Vector:
     e_p =  W_p[:, l]
     return e_p
 
 def single_query_attention(
-    e: npt.NDArray[np.float64],
-    e_t: npt.NDArray[np.float64],
-    W_qkv: npt.NDArray[np.float64],
-    b_qkv: npt.NDArray[np.float64],
-) -> npt.NDArray[np.float64]:
+    e: Vector,
+    e_t: Vector,
+    W_qkv: Matrix,
+    b_qkv: Matrix,
+) -> Matrix:
     W_q, W_k, W_v = W_qkv
     b_q, b_k, b_v = b_qkv
     
@@ -93,7 +107,7 @@ def single_query_attention(
     k = W_k @ e_t + b_k[:, None]
     v = W_v @ e_t + b_v[:, None]
     
-    S = (k.T @ q) / np.sqrt(d_attn)
+    S = (q @ k) / np.sqrt(d_attn)
     
     alpha_t = softmax(S)
     
@@ -101,12 +115,12 @@ def single_query_attention(
     return v_tilde
 
 def attention(
-    X: npt.NDArray[np.float64],
-    Z: npt.NDArray[np.float64],
-    W_qkv: npt.NDArray[np.float64],
-    b_qkv: npt.NDArray[np.float64],
-    mask: npt.NDArray[np.float64]
-) -> npt.NDArray[np.float64]:
+    X: Matrix,
+    Z: Matrix,
+    W_qkv: Matrix,
+    b_qkv: Vector,
+    mask: Vector
+) -> Matrix:
     W_q, W_k, W_v = W_qkv
     b_q, b_k, b_v = b_qkv
     
@@ -123,54 +137,81 @@ def attention(
     return V_tilde
 
 def multi_head_attention(
-    X: npt.NDArray[np.float64],
-    Z: npt.NDArray[np.float64],
-    W_qkv: npt.NDArray[np.float64],
-    b_qkv: npt.NDArray[np.float64],
-    mask: npt.NDArray[np.float64],
+    X: Matrix,
+    Z: Matrix,
+    W: Matrix,
+    b: Matrix,
+    mask: Matrix,
     heads: int,
-    W_o: npt.NDArray[np.float64],
-    b_o: npt.NDArray[np.float64],
-) -> npt.NDArray[np.float64]:
-    Y_h = [attention(X, Z, W_qkv, b_qkv, mask) for _ in range(heads)]
+    W_o: Matrix,
+    b_o: Vector,
+) -> Matrix:
+    H = len(W)
     
-    Y = np.concatenate(Y_h, axis=0)
+    Y_h = []
+    
+    
+    for h in range(H):
+        W_q, W_k, W_v = W[h]
+        b_q, b_k, b_v = b[h]
+        
+        V_tilde = attention(X, Z, (W_q, W_k, W_v), (b_q, b_k, b_v), mask)
+        
+        Y_h.append(V_tilde)
+    
+    Y = np.concatenate(Y_h)
     
     V_tilde = W_o @ Y + b_o[:, None]
-    return V_tilde
-    
-        
+    return V_tilde        
 
 if __name__ == "__main__":
     
     params = GPT2SmallParams(768, 50257, 1024, 64, 768)
     
-    W_e = params.W_e
     v = 6767
-    # print(token_embedding(v, W_e))
+    # print(token_embedding(v, params.W_e))
     
-    W_p = params._W_p
     l = 67
-    # print(positional_embedding(l, W_p))
+    # print(positional_embedding(l, params.W_p))
+
     
-    e = params.e
-    e_t = params.e_t
+    # print(single_query_attention(params.e, params.e_t, params.W_qkv, params._b_qkv))
     
-    W_q = params.W_q
-    W_k = params.W_k
-    W_v = params.W_v
+    tokens = 67
+    X = np.random.rand(768, tokens)
+    Z = np.random.rand(768, tokens)
+    mask = np.triu(np.ones((tokens, tokens)))
+    # print(attention(X, Z, params.W_qkv, params.b_qkv, mask))
     
-    b_q = params.b_q
-    b_k = params.b_k
-    b_v = params.b_v
-    # print(single_query_attention(e, e_t, (W_q, W_k, W_v), (b_q, b_k, b_v)))
+    H = 12
+    print(multi_head_attention(X, Z, params.W, params.b, mask, H, params.W_o, params.b_o).shape)
     
-    X = np.random.rand(768, 10)
-    Z = np.random.rand(768, 10)
-    mask = np.triu(np.ones((10, 10)))
-    # print(attention(X, Z, (W_q, W_k, W_v), (b_q, b_k, b_v), mask))
+    # W_qkv = params.W_qkv
+    # print(len(W_qkv))
+    # print(W_qkv[0].shape)
     
-    heads = 12
-    W_o = params.W_o
-    b_o = params.b_o
-    print(multi_head_attention(X, Z, (W_q, W_k, W_v), (b_q, b_k, b_v), mask, heads, W_o, b_o))
+    
+    
+    # def x1(y):
+    #     print(y)
+    
+    # def x2(*y):
+    #     print(y)
+        
+    # x1((3,4))
+    # x2(3,4)
+    
+    # W_qkv_mha = np.random.rand(H, 3, 64, 768)
+    # print(W_qkv_mha.shape)
+    
+    # X = tuple(
+    #     (
+    #         x - 1,
+    #         x,
+    #         x + 1
+    #     )
+    #     for x in range(10)
+    # )
+    # print(X)
+    
+    # print((params.W[0][0]).shape)
