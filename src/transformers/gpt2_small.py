@@ -8,6 +8,7 @@ Matrix = npt.NDArray[np.float64]
 class GPT2SmallParams:
     def __init__(self, d_e: int = 768, N_V: int = 50257, l_max: int=1024, d_attn=64, d_in=768, d_out=64, d_mid=64, H=12, d_out_h=768):
         self._W_e: Matrix = self.rand_init(d_e, N_V)
+        self._W_u: Matrix = self._W_e.T
         self._W_p: Matrix = self.rand_init(d_e, l_max)
         self._e: Vector = self.rand_init(d_in)
         self._e_t: Vector = self.rand_init(d_in)
@@ -31,10 +32,16 @@ class GPT2SmallParams:
             )
             for _ in range(H)
         )
+        self._gamma: Vector = np.ones(d_in)
+        self._beta: Vector = np.zeros(d_in)
     
     @property
     def W_e(self):
         return self._W_e
+    
+    @property
+    def W_u(self):
+        return self._W_u
     
     @property
     def W_p(self):
@@ -71,6 +78,14 @@ class GPT2SmallParams:
     @property
     def b(self):
         return self._b
+    
+    @property
+    def gamma(self):
+        return self._gamma
+        
+    @property
+    def beta(self):
+        return self._beta
     
     @staticmethod
     def rand_init(rows: int, cols: int | None = None) -> Vector | Matrix:
@@ -162,7 +177,34 @@ def multi_head_attention(
     Y = np.concatenate(Y_h)
     
     V_tilde = W_o @ Y + b_o[:, None]
-    return V_tilde        
+    return V_tilde
+
+def layer_norm(
+    e: Vector,
+    gamma: Vector,
+    beta: Vector,
+    epsilon: int=1e-5
+) -> Vector:
+    d_e = e.shape[0]
+    
+    # de_ones = np.ones(768)
+    # m_X = np.dot(de_ones, e) / d_e
+
+    # demean = e - m_X * de_ones
+    # v_x = np.dot(demean, demean) / d_e
+    
+    m = np.mean(e)
+    v = np.var(e)
+    
+    s = (e - m) / np.sqrt(v + epsilon)  
+    e_cap = s * gamma + beta
+    return e_cap
+
+def unembedding(e: Vector, W_u: Matrix) -> Vector:
+    logits = W_u @ e
+    p = softmax(logits)
+    return p
+    
 
 if __name__ == "__main__":
     
@@ -184,7 +226,11 @@ if __name__ == "__main__":
     # print(attention(X, Z, params.W_qkv, params.b_qkv, mask))
     
     H = 12
-    print(multi_head_attention(X, Z, params.W, params.b, mask, H, params.W_o, params.b_o).shape)
+    # print(multi_head_attention(X, Z, params.W, params.b, mask, H, params.W_o, params.b_o).shape)
+    
+    # print(layer_norm(params.e, params.gamma, params.beta))
+    
+    print(unembedding(params.e, params.W_u))
     
     # W_qkv = params.W_qkv
     # print(len(W_qkv))
