@@ -32,13 +32,13 @@ def layer_activation(X, W, b, activation_func):
 def softmax(z):
     z = np.asarray(z, dtype=float)
     
-    e = np.exp(z - np.max(z))
-    return e / np.sum(e)
+    e = np.exp(z - np.max(z, axis=-1, keepdims=True))
+    return e / np.sum(e, axis=-1, keepdims=True)
 
 def one_hot_encoding(x, num_classes):
     x = np.asarray(x, dtype=int)
     
-    if np.any(x < 0) or np.any(x > num_classes):
+    if np.any(x < 0) or np.any(x >= num_classes):
         raise ValueError("Invalid class index")
     
     res = np.zeros((len(x), num_classes))
@@ -47,14 +47,20 @@ def one_hot_encoding(x, num_classes):
     return res
 
 def mean(x):
+    x = np.asarray(x, dtype=float)
+    
     # return np.mean(x)
     return np.sum(x) / len(x)
 
 def standard_deviation(x):
+    x = np.asarray(x, dtype=float)
+    
     # return np.std(x)
     return np.sqrt(np.sum((x - np.mean(x)) ** 2) / len(x))
 
 def layer_norm(e, gamma, beta, epsilon=1e-5):
+    e = np.asarray(e)
+    
     m = mean(e)
     v = np.var(e)
     
@@ -62,7 +68,7 @@ def layer_norm(e, gamma, beta, epsilon=1e-5):
     
     return e_hat * gamma + beta
 
-def l2_normalization(x):
+def l2_norm(x):
     return np.sqrt(np.dot(x, x))
 
 
@@ -123,8 +129,8 @@ print(standard_deviation(x))
 
 print(layer_norm([3 ,5 ,2 ,8], 1.5, 0.5))
 
-print(l2_normalization([3, 4]))
-print(l2_normalization([3, -4, 2]))
+print(l2_norm([3, 4]))
+print(l2_norm([3, -4, 2]))
 
 
 print(layer_activation(
@@ -157,3 +163,7 @@ print(layer_activation(
     gelu
 ))
 
+print(softmax([
+        [1, 2],
+        [0, 1]
+    ],))

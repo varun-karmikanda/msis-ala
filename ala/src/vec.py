@@ -1,4 +1,5 @@
 import numpy as np
+import numbers
 
 class VecNumpy:
     def __init__(self, src):
@@ -6,7 +7,7 @@ class VecNumpy:
             raise TypeError("Vector cannot be empty!")
         
         for x in src:
-            if not isinstance(x, (int, float)):
+            if not isinstance(x, numbers.Real):
                 raise TypeError(f"Each scalar must be of type int or float: {type(x)}")
         
         elements = np.array(src, dtype=float)
@@ -62,6 +63,8 @@ class VecNumpy:
         return self
     
     def __radd__(self, other):
+        if other == 0:
+            return self
         return self.__add__(other)
     
     def __iadd__(self, other):
@@ -71,7 +74,7 @@ class VecNumpy:
         if(len(self) != len(other)):
             raise TypeError("The vectors must be of the same length")
         
-        self.elements += other
+        self.elements += other.elements
         return self
     
     @staticmethod
@@ -101,7 +104,11 @@ class VecNumpy:
         return np.linalg.norm(self.elements)
     
     def cosine_similarity(self, other):
-        return self.dot(other) / (self.norm() * other.norm())
+        denom = self.norm() * other.norm()
+        if denom == 0:
+            raise ValueError("Cosine similarity is undefined for a zero vector")
+
+        return self.dot(other) / denom
     
     def mean(self):
         return np.mean(self.elements)
@@ -151,3 +158,7 @@ print(v2.cosine_similarity(v3))
 print(v2.mean())
 print(v2.demean())
 print(v2.std())
+
+v1 = VecNumpy((1, 2))
+v2 = VecNumpy((3, 4))
+print(sum([v1, v2]))
