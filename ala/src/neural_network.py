@@ -46,17 +46,23 @@ def one_hot_encoding(x, num_classes):
     
     return res
 
-def mean(x):
+def mean(x, axis=None, keepdims=False):
     x = np.asarray(x, dtype=float)
     
-    # return np.mean(x)
-    return np.sum(x) / len(x)
+    if axis is None:
+        return np.sum(x, keepdims=keepdims) / x.size
+    
+    return np.sum(x, axis=axis, keepdims=keepdims) / x.shape[axis]
 
-def standard_deviation(x):
+def standard_deviation(x, axis=None, keepdims=False):
     x = np.asarray(x, dtype=float)
     
-    # return np.std(x)
-    return np.sqrt(np.sum((x - np.mean(x)) ** 2) / len(x))
+    m = mean(x, axis=axis, keepdims=True)
+    
+    if axis is None:
+        return np.linalg.norm(x - m, keepdims=keepdims) / np.sqrt(x.size)
+    
+    return np.linalg.norm(x - m, axis=axis, keepdims=keepdims) / np.sqrt(x.shape[axis])
 
 def layer_norm(e, gamma, beta, epsilon=1e-5):
     e = np.asarray(e)
@@ -70,6 +76,26 @@ def layer_norm(e, gamma, beta, epsilon=1e-5):
 
 def l2_norm(x):
     return np.sqrt(np.dot(x, x))
+
+def l2_norm_edge(x, axis=None, keepdims=False):
+    x = np.asarray(x, dtype=float)
+    return np.sqrt(np.sum(x ** 2, axis=axis, keepdims=keepdims))
+
+
+def layer_norm_edge(x, gamma=1.0, beta=0.0, axis=-1, eps=1e-5):
+    x = np.asarray(x, dtype=float)
+
+    m = mean(x, axis=axis, keepdims=True)
+    # Using variance + eps inside sqrt matches PyTorch/TensorFlow nn.LayerNorm
+    var = mean((x - m) ** 2, axis=axis, keepdims=True)
+
+    x_hat = (x - m) / np.sqrt(var + eps)
+    return x_hat * gamma + beta
+
+def l2_normalization(x, axis=-1, eps=1e-12):
+    x = np.asarray(x, dtype=float)
+    norm = np.linalg.norm(x, axis=axis, keepdims=True)
+    return x / np.maximum(norm, eps)
 
 
 
@@ -167,3 +193,25 @@ print(softmax([
         [1, 2],
         [0, 1]
     ],))
+
+print(mean([
+        [1, 2],
+        [0, 1],
+        [0, 1]
+    ], 1))
+
+print(standard_deviation([
+        [1, 2],
+        [0, 1]
+    ], 1))
+
+print(mean([
+        [1, 2],
+        [0, 1],
+        [0, 1]
+    ]))
+
+print(standard_deviation([
+        [1, 2],
+        [0, 1]
+    ]))
